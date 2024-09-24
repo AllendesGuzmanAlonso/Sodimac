@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Inicio de Sesión</title>
+    <!-- Uso correcto de url_for para los archivos CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <header class="encabezado">
+        <div class="logo">
+            <!-- Uso correcto de url_for para las imágenes -->
+            <!--img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Sodimac"-->
+            <span class="nombre-empresa">SODIMAC</span>
+        </div>
+    </header>
+
+    <div class="contenedor-login">
+        <form class="formulario-login">
+            <label for="usuario">Usuario</label>
+            <input type="text" id="usuario" placeholder="Usuario">
+            
+            <label for="contrasena">Contraseña</label>
+            <input type="password" id="contrasena" placeholder="Contraseña">
+            
+            <button type="submit">Iniciar Sesión</button>
+            
+            <a href="#" class="recuperar-contrasena">¿Olvidaste la contraseña?</a>
+        </form>
+    </div>
+</body>
+</html>

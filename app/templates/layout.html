@@ -34,13 +34,13 @@
                 </button>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Herramientas</a>
+                        <a class="nav-link active" href="{{ url_for('main_bp.home') }}">Herramientas</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Reportes</a>
+                        <a class="nav-link" href="{{ url_for('main_bp.reportes') }}">Reportes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Registro Herramienta</a>
+                        <a class="nav-link" href="{{ url_for('main_bp.registroHerramientas') }}">Registro Herramienta</a>
                     </li>
                 </ul>
             </div>

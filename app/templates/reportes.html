@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes de Herramientas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS for sidebar -->
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+
+        .sidebar .nav-link {
+            color: white;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: #495057;
+        }
+
+        .container-fluid {
+            flex-grow: 1;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+    <ul class="nav flex-column">
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main_bp.home') }}">Herramientas</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('main_bp.reportes') }}">Reportes</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main_bp.registroHerramientas') }}">Registro Herramienta</a>
+        </li>
+        <!-- Puedes agregar más enlaces aquí -->
+    </ul>
+</nav>
+
+<!-- Contenido Principal -->
+<div class="container-fluid mt-5">
+    <h2 class="text-center">Reportes de Transacciones y Stock de Herramientas</h2>
+    
+    <!-- Botones de Exportación -->
+    <div class="d-flex justify-content-end mb-3">
+        <button id="exportCSV" class="btn btn-primary me-2">Exportar CSV</button>
+        <button id="exportXLSX" class="btn btn-success">Exportar XLSX</button>
+    </div>
+
+    <!-- Tabla de Reportes -->
+    <div class="table-responsive">
+        <table id="reportesTable" class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Sucursal</th>
+                    <th>Herramienta</th>
+                    <th>Stock Disponible</th>
+                    <th>Transacciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Ejemplo de datos, puedes reemplazarlo con datos dinámicos -->
+                <tr>
+                    <td>Sucursal 1</td>
+                    <td>Martillo</td>
+                    <td>15</td>
+                    <td>12</td>
+                </tr>
+                <tr>
+                    <td>Sucursal 2</td>
+                    <td>Taladro</td>
+                    <td>8</td>
+                    <td>7</td>
+                </tr>
+                <tr>
+                    <td>Sucursal 3</td>
+                    <td>Sierra</td>
+                    <td>5</td>
+                    <td>10</td>
+                </tr>
+                <!-- Continuar con las demás sucursales -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- SheetJS for XLSX export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    // Inicializar DataTables para la tabla
+    $(document).ready(function() {
+        $('#reportesTable').DataTable();
+    });
+
+    // Función para exportar CSV
+    function exportTableToCSV(filename) {
+        var csv = [];
+        var rows = document.querySelectorAll("table tr");
+        
+        for (var i = 0; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td, th");
+            
+            for (var j = 0; j < cols.length; j++) {
+                row.push(cols[j].innerText);
+            }
+            
+            csv.push(row.join(","));        
+        }
+
+        // Crear el archivo CSV
+        var csvFile = new Blob([csv.join("\n")], {type: "text/csv"});
+        var downloadLink = document.createElement("a");
+        downloadLink.download = filename;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+    }
+
+    // Función para exportar XLSX
+    function exportTableToXLSX() {
+        var table = document.getElementById("reportesTable");
+        var wb = XLSX.utils.table_to_book(table, {sheet: "Sheet1"});
+        XLSX.writeFile(wb, "reportes.xlsx");
+    }
+
+    // Eventos de los botones de exportación
+    document.getElementById("exportCSV").addEventListener("click", function () {
+        exportTableToCSV("reportes.csv");
+    });
+
+    document.getElementById("exportXLSX").addEventListener("click", function () {
+        exportTableToXLSX();
+    });
+</script>
+
+</body>
+</html>

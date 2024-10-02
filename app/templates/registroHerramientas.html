@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+
+{% block title %} Registro de Herramientas {% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Registro de Herramientas</h2>
+
+    <form>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="nombre" class="form-label">Nombre de la Herramienta</label>
+                <input type="text" class="form-control" id="nombre" placeholder="Nombre de la Herramienta" required>
+            </div>
+            <div class="col-md-6">
+                <label for="marca" class="form-label">Marca</label>
+                <input type="text" class="form-control" id="marca" placeholder="Marca de la Herramienta" required>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="codigo" class="form-label">Código de la Herramienta</label>
+                <input type="text" class="form-control" id="codigo" placeholder="Código Único" required>
+            </div>
+            <div class="col-md-6">
+                <label for="sucursal" class="form-label">Sucursal</label>
+                <select class="form-select" id="sucursal" required>
+                    <option selected disabled>Seleccionar Sucursal</option>
+                    <option value="1">Sucursal 1</option>
+                    <option value="2">Sucursal 2</option>
+                    <option value="3">Sucursal 3</option>
+                    <option value="4">Sucursal 4</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="stock" class="form-label">Stock Disponible</label>
+                <input type="number" class="form-control" id="stock" placeholder="Cantidad en Stock" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-danger w-100">Registrar Herramienta</button>
+    </form>
+</div>
+{% endblock %}

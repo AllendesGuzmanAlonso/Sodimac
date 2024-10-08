@@ -1,0 +1,118 @@
+{% extends 'layout.html' %}
+
+{% block title %} Transacciones {% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos personalizados */
+    .stock-info,
+    .transaction-info {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .stock-info h5,
+    .transaction-info h5 {
+        font-size: 1.25rem;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .stock-display {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .save-btn {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .save-btn:hover {
+        background-color: #218838;
+        color: white;
+    }
+
+    .form-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #555;
+    }
+
+    .form-select,
+    .form-control {
+        font-size: 1rem;
+    }
+</style>
+
+<!-- Contenedor principal -->
+<div class="container-fluid">
+    <!-- Contenido principal -->
+    <div class="col-md-9 content">
+        <!-- Información de la herramienta seleccionada -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="stock-info">
+                    <h5>Nombre Maquina</h5>
+                    <div class="stock-display">
+                        Stock local: 11
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="transaction-info">
+                    <h5>Otras sucursales</h5>
+                    <div class="row">
+                        <div class="col-md-6"><input type="text" class="form-control" placeholder="Sucursal 1"></div>
+                        <div class="col-md-6"><input type="text" class="form-control" placeholder="Stock"></div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6"><input type="text" class="form-control" placeholder="Sucursal 2"></div>
+                        <div class="col-md-6"><input type="text" class="form-control" placeholder="Stock"></div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6"><input type="text" class="form-control" placeholder="Sucursal 3"></div>
+                        <div class="col-md-6"><input type="text" class="form-control" placeholder="Stock"></div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6"><input type="text" class="form-control" placeholder="Sucursal 4"></div>
+                        <div class="col-md-6"><input type="text" class="form-control" placeholder="Stock"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de transacción -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="transaction-info">
+                    <h5>Transacción</h5>
+                    <div class="mb-3">
+                        <label for="codigo" class="form-label">Código</label>
+                        <select class="form-select" id="codigo">
+                            <option selected>Seleccionar Código</option>
+                            <option value="1">001</option>
+                            <option value="2">002</option>
+                            <option value="3">003</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-select" id="estado">
+                            <option selected>Seleccionar Estado</option>
+                            <option value="disponible">Disponible</option>
+                            <option value="arrendado">Arrendado</option>
+                            <option value="servicio">Servicio Técnico</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn save-btn">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

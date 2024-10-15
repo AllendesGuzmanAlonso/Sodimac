@@ -1,0 +1,27 @@
+{% extends 'layout.html' %}
+
+{% block title %} Listar Sucursales {% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center">Lista de Sucursales</h2>
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Ubicación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sucursal in sucursales %}
+            <tr>
+                <td>{{ sucursal.id_sucursal }}</td>
+                <td>{{ sucursal.nombre_sucursal }}</td>
+                <td>{{ sucursal.ubicacion }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

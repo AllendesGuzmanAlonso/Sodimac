@@ -1,112 +1,66 @@
 {% extends 'layout.html' %}
 
-{% block title %} Transacciones {% endblock %}
+{% block title %}Transacciones{% endblock %}
 
 {% block content %}
-<style>
-    /* Estilos personalizados */
-    .stock-info,
-    .transaction-info {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    .stock-info h5,
-    .transaction-info h5 {
-        font-size: 1.25rem;
-        color: #333;
-        margin-bottom: 15px;
-    }
-
-    .stock-display {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: #007bff;
-    }
-
-    .save-btn {
-        background-color: #28a745;
-        color: white;
-    }
-
-    .save-btn:hover {
-        background-color: #218838;
-        color: white;
-    }
-
-    .form-label {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #555;
-    }
-
-    .form-select,
-    .form-control {
-        font-size: 1rem;
-    }
-</style>
-
-<!-- Contenedor principal -->
 <div class="container-fluid">
-    <!-- Contenido principal -->
-    <div class="col-md-9 content">
-        <!-- Información de la herramienta seleccionada -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="stock-info">
-                    <h5>{{ herramienta.nombre }}</h5>
-                    <div class="stock-display">
-                        Stock local: {{ herramienta.cantidad_disponible }}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="transaction-info">
-                    <h5>Otras sucursales</h5>
-                    {% for sucursal in stock_sucursales %}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input type="text" class="form-control" value="{{ sucursal.sucursal.nombre_sucursal }}"
-                                readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control" value="{{ sucursal.cantidad_disponible }}" readonly>
-                        </div>
-                    </div>
-                    {% endfor %}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="stock-info">
+                <h5>{{ herramienta.nombre }}</h5>
+                <div class="stock-display">
+                    Stock local: {{ herramienta.cantidad_disponible }}
                 </div>
             </div>
         </div>
-
-        <!-- Sección de transacción -->
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <form method="POST">
-                    <div class="transaction-info">
-                        <h5>Transacción</h5>
-                        <div class="mb-3">
-                            <label for="codigo" class="form-label">Código</label>
-                            <select class="form-select" id="codigo" name="codigo">
-                                <option selected>Seleccionar Código</option>
-                                <option value="{{ herramienta.codigo }}">{{ herramienta.codigo }}</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="estado" class="form-label">Estado</label>
-                            <select class="form-select" id="estado" name="estado">
-                                <option selected>Seleccionar Estado</option>
-                                {% for estado in EstadoHerramientaEnum %}
-                                <option value="{{ estado.value }}">{{ estado.value }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <button type="submit" class="btn save-btn">Guardar</button>
+        <div class="col-md-6">
+            <div class="transaction-info">
+                <h5>Otras sucursales</h5>
+                {% for sucursal in stock_sucursales %}
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" value="{{ sucursal.sucursal.nombre_sucursal }}"
+                            readonly>
                     </div>
-                </form>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" value="{{ sucursal.sucursal.ubicacion }}" readonly>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" value="{{ sucursal.cantidad_disponible }}" readonly>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
+        </div>
+    </div>
+
+    <!-- Sección de transacción -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <form method="POST">
+                <div class="transaction-info">
+                    <h5>Transacción</h5>
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select class="form-select" id="estado" name="estado">
+                            <option selected>Seleccionar Estado</option>
+                            {% for estado in EstadoHerramientaEnum %}
+                            <option value="{{ estado.value }}">{{ estado.value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="sucursal_origen" class="form-label">Sucursal Origen</label>
+                        <select class="form-select" id="sucursal_origen" name="sucursal_origen">
+                            {% for sucursal in stock_sucursales %}
+                            <option value="{{ sucursal.sucursal.id_sucursal }}">{{ sucursal.sucursal.nombre_sucursal }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn save-btn">Guardar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -89,26 +89,18 @@ class ReporteArriendo(db.Model):
     herramienta = db.relationship("Herramienta", backref="arriendos")
 
 
-# Este modelo representa las transacciones realizadas con las herramientas.
 class Transaccion(db.Model):
     __tablename__ = "transacciones"
     id_transaccion = db.Column(db.Integer, primary_key=True)
-    id_herramienta = db.Column(
-        db.Integer, db.ForeignKey("herramientas.id_herramienta"), nullable=False
-    )
+    id_herramienta = db.Column(db.Integer, db.ForeignKey("herramientas.id_herramienta"), nullable=False)
     fecha = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    cantidad = db.Column(
-        db.Integer, nullable=False, default=1
-    )  # Cantidad de herramientas involucradas en la transacción
-    sucursal_origen = db.Column(
-        db.Integer, db.ForeignKey("sucursales.id_sucursal"), nullable=True
-    )
-    sucursal_destino = db.Column(
-        db.Integer, db.ForeignKey("sucursales.id_sucursal"), nullable=True
-    )
+    cantidad = db.Column(db.Integer, nullable=False, default=1)
+    sucursal_origen = db.Column(db.Integer, db.ForeignKey("sucursales.id_sucursal"), nullable=False)
     estado = db.Column(db.Enum(EstadoHerramientaEnum), nullable=False)
 
     herramienta = db.relationship("Herramienta", backref="transacciones")
+    sucursal = db.relationship("Sucursal", backref="transacciones_origen", foreign_keys=[sucursal_origen])
+
 
 
 # Este es un modelo intermedio que sirve para manejar la relación de muchos a muchos entre herramientas y sucursales.

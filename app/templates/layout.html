@@ -168,6 +168,18 @@
                         <a class="nav-link {% if request.endpoint == 'main_bp.registroHerramientas' %}active{% endif %}"
                             href="{{ url_for('main_bp.registroHerramientas') }}">Registro Herramienta</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'main_bp.ver_transacciones' %}active{% endif %}"
+                            href="{{ url_for('main_bp.ver_transacciones') }}">Ver Transacciones</a>
+                    </li>
+
+
+                    {% if session['usuario_id'] %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'main_bp.listar_sucursales' %}active{% endif %}"
+                            href="{{ url_for('main_bp.listar_sucursales') }}">Listar Sucursales</a>
+                    </li>
+                    {% endif %}
 
                     {% if session['rol'] == 'Administrador' %}
                     <li class="nav-item">
@@ -175,19 +187,20 @@
                             href="{{ url_for('main_bp.crear_usuario') }}">Crear Usuario</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'main_bp.crear_sucursal' %}active{% endif %}"
+                            href="{{ url_for('main_bp.crear_sucursal') }}">Crear Sucursal</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'main_bp.listar_usuarios' %}active{% endif %}"
                             href="{{ url_for('main_bp.listar_usuarios') }}">Listar Usuarios</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'main_bp.crear_sucursal' %}active{% endif %}"
-                            href="{{ url_for('main_bp.crear_sucursal') }}">Crear Sucursal</a>
+                        <a class="nav-link {% if request.endpoint == 'main_bp.eliminar_herramienta' %}active{% endif %}"
+                            href="{{ url_for('main_bp.listar_herramientas_para_eliminar') }}">Eliminar Herramienta</a>
                     </li>
-                    {% endif %}
-
-                    {% if session['usuario_id'] %}
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'main_bp.listar_sucursales' %}active{% endif %}"
-                            href="{{ url_for('main_bp.listar_sucursales') }}">Listar Sucursales</a>
+                        <a class="nav-link {% if request.endpoint == 'main_bp.eliminar_sucursal' %}active{% endif %}"
+                            href="{{ url_for('main_bp.listar_para_eliminar_sucursales') }}">Eliminar Sucursal</a>
                     </li>
                     {% endif %}
                 </ul>

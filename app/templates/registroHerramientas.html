@@ -40,7 +40,12 @@
             <div class="col-md-6">
                 <label for="stock" class="form-label">Stock Disponible</label>
                 <input type="number" class="form-control" id="stock" name="stock" placeholder="Cantidad en Stock"
-                    required>
+                    min="1" required>
+            </div>
+            <div class="col-md-6">
+                <label for="stock_total" class="form-label">Stock Total</label>
+                <input type="number" class="form-control" id="stock_total" name="stock_total" placeholder="Cantidad Máxima"
+                    min="1" required>
             </div>
         </div>
 

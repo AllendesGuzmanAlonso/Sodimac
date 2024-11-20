@@ -26,12 +26,12 @@
                 <td>{{ transaccion.cantidad }}</td>
                 <td>
                     {% if transaccion.sucursal_origen %}
-                    {{ transaccion.sucursal_origen }}
+                    {{ transaccion.sucursal.nombre_sucursal }}
                     {% else %}
                     N/A
                     {% endif %}
                 </td>
-                <td>{{ transaccion.estado }}</td>
+                <td>{{ transaccion.estado.name }}</td>
                 <td>{{ transaccion.fecha.astimezone(tz).strftime('%Y-%m-%d %H:%M') }}</td>
             </tr>
             {% endfor %}

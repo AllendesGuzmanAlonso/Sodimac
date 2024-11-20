@@ -147,7 +147,8 @@
 
             <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
 
-            <a href="#" class="recuperar-contrasena">¿Olvidaste la contraseña?</a>
+            <!-- Enlace corregido para recuperación de contraseña -->
+            <a href="{{ url_for('main_bp.recuperar_contrasena') }}" class="recuperar-contrasena">¿Olvidaste la contraseña?</a>
         </form>
     </div>
 
@@ -173,3 +174,4 @@
 </body>
 
 </html>
+

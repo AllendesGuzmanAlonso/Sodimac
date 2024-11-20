@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from app.src.models.models import (
     Herramienta,
     Sucursal,
@@ -11,53 +11,84 @@ from app.src.models.models import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.src.utils.decorators import login_required, admin_required
+from itsdangerous import URLSafeTimedSerializer, BadSignature
+from flask_mail import Message, Mail
 import csv
 import io
 from flask import send_file, Response
 import pandas as pd
 import pytz
 
+
 main_bp = Blueprint("main_bp", __name__)
+
+# Configuración de Flask-Mail
+mail = Mail()
+s = URLSafeTimedSerializer("your-secret-key")  # Cambia "your-secret-key" por una clave secreta real
 
 
 # Ruta de login aceptando tanto GET como POST
 @main_bp.route("/", methods=["GET", "POST"])
 def login():
-    """Maneja la autenticación de usuarios."""
+    """Maneja la autenticación de usuarios con selección de sucursal."""
     if request.method == "POST":
-        # Obtener el correo, la contraseña y la sucursal ingresados
         correo = request.form.get("correo")
         password = request.form.get("password")
         sucursal_id = request.form.get("sucursal")
 
-        # Validar que todos los campos estén completos
         if not sucursal_id:
             flash("Por favor, selecciona una sucursal.", "warning")
             return render_template("login.html", sucursales=Sucursal.query.all())
 
-        # Buscar al usuario en la base de datos por el correo
         usuario = Usuario.query.filter_by(correo=correo).first()
 
-        # Verificar si el usuario existe y la contraseña es correcta
         if usuario and check_password_hash(usuario.password_hash, password):
-            # Si todo está bien, almacenar los datos del usuario y la sucursal en la sesión
             session["usuario_id"] = usuario.id_usuario
             session["rol"] = usuario.rol.value
             session["nombre_usuario"] = usuario.nombre
-            session["sucursal_id"] = sucursal_id  # Almacena la sucursal seleccionada
+            session["sucursal_id"] = sucursal_id
             session["nombre_sucursal"] = Sucursal.query.get(sucursal_id).nombre_sucursal
 
-            flash(f"Bienvenido, {usuario.nombre}, Sucursal: {session['nombre_sucursal']}")  # Mensaje de éxito
-            return redirect(url_for("main_bp.home"))  # Redirigir al home
+            flash(f"Bienvenido, {usuario.nombre}, Sucursal: {session['nombre_sucursal']}")
+            return redirect(url_for("main_bp.home"))
         else:
-            # Si las credenciales son incorrectas
             flash("Correo o contraseña incorrectos", "danger")
-            print("Contraseña incorrecta o usuario no encontrado")  # Mensaje para depuración
+            print("Contraseña incorrecta o usuario no encontrado")
 
-    # Si es un GET, cargar las sucursales para mostrarlas en el formulario
     sucursales = Sucursal.query.all()
     return render_template("login.html", sucursales=sucursales)
 
+# Ruta de recuperación de contraseña unificada
+@main_bp.route("/recuperar_contrasena", methods=["GET", "POST"])
+def recuperar_contrasena():
+    """Maneja la recuperación de contraseña en un solo flujo."""
+    if request.method == "POST":
+        correo = request.form.get("correo")
+        nueva_password = request.form.get("nueva_password")
+        confirmar_password = request.form.get("confirmar_password")
+
+        if nueva_password and confirmar_password:
+            if nueva_password != confirmar_password:
+                flash("Las contraseñas no coinciden.", "danger")
+                return render_template("recuperar_contrasena.html", correo=correo)
+
+            usuario = Usuario.query.filter_by(correo=correo).first()
+            if usuario:
+                usuario.password_hash = generate_password_hash(nueva_password)
+                db.session.commit()
+                flash("Contraseña actualizada con éxito. Ahora puedes iniciar sesión.", "success")
+                return redirect(url_for("main_bp.login"))
+            else:
+                flash("El correo no está registrado.", "danger")
+        elif correo:
+            usuario = Usuario.query.filter_by(correo=correo).first()
+            if usuario:
+                flash("Por favor, ingresa la nueva contraseña.", "info")
+                return render_template("recuperar_contrasena.html", correo=correo)
+            else:
+                flash("El correo no está registrado.", "danger")
+
+    return render_template("recuperar_contrasena.html")
 
 
 @main_bp.route("/home", methods=["GET"])
@@ -115,10 +146,26 @@ def registroHerramientas():
         codigo = request.form.get("codigo")
         sucursal_id = request.form.get("sucursal")
         stock = request.form.get("stock")
+        stock_total = request.form.get("stock_total")
 
         # Validar que los campos no estén vacíos
-        if not nombre or not marca or not codigo or not sucursal_id or not stock:
+        if not nombre or not marca or not codigo or not sucursal_id or not stock or not stock_total:
             flash("Todos los campos son obligatorios", "danger")
+            return render_template("registroHerramientas.html", sucursales=sucursales)
+
+        # Validar que el stock total sea un número positivo
+        try:
+            stock = int(stock)
+            stock_total = int(stock_total)
+            if stock < 0 or stock_total < 0:
+                raise ValueError
+        except ValueError:
+            flash("El stock y el stock total deben ser números positivos", "danger")
+            return render_template("registroHerramientas.html", sucursales=sucursales)
+
+        # Validar que el stock inicial no supere el stock total
+        if stock > stock_total:
+            flash("El stock inicial no puede ser mayor al stock total", "danger")
             return render_template("registroHerramientas.html", sucursales=sucursales)
 
         # Verificar si ya existe una herramienta con ese código
@@ -133,6 +180,7 @@ def registroHerramientas():
             marca=marca,
             codigo=codigo,
             cantidad_disponible=stock,
+            stock_total=stock_total,
             sucursal_id=sucursal_id,
         )
 
@@ -147,79 +195,87 @@ def registroHerramientas():
     return render_template("registroHerramientas.html", sucursales=sucursales)
 
 
+
 # Transacciones
+# Ruta para la página de transacciones
 @main_bp.route("/transacciones/<int:id_herramienta>", methods=["GET", "POST"])
 @login_required
 def transacciones(id_herramienta):
-    """Registro de transacciones de herramientas en distintas sucursales."""
-    # Obtener la herramienta seleccionada
+    """Gestiona las transacciones de herramientas."""
     herramienta = Herramienta.query.get_or_404(id_herramienta)
+    sucursal_actual_id = session.get("sucursal_id")
+    sucursal_actual = Sucursal.query.get_or_404(sucursal_actual_id)
 
-    # Obtener el stock en todas las sucursales donde esté disponible la herramienta
-    stock_sucursales = HerramientaSucursal.query.filter_by(
-        herramienta_id=herramienta.id_herramienta
-    ).all()
+    herramienta_sucursal_actual = HerramientaSucursal.query.filter_by(
+        herramienta_id=id_herramienta,
+        sucursal_id=sucursal_actual_id
+    ).first()
 
-    if request.method == "POST":
-        # Obtener los datos del formulario
-        estado = request.form.get("estado")
-        sucursal_origen = request.form.get("sucursal_origen")
-
-        if not estado or not sucursal_origen:
-            flash("Debe seleccionar un estado y una sucursal de origen.", "danger")
-            return redirect(
-                url_for("main_bp.transacciones", id_herramienta=id_herramienta)
-            )
-
-        # Obtener el stock de la herramienta en la sucursal seleccionada
-        herramienta_sucursal = HerramientaSucursal.query.filter_by(
-            herramienta_id=herramienta.id_herramienta, sucursal_id=sucursal_origen
-        ).first()
-
-        if not herramienta_sucursal:
-            flash(
-                "La herramienta no está disponible en la sucursal seleccionada.",
-                "danger",
-            )
-            return redirect(
-                url_for("main_bp.transacciones", id_herramienta=id_herramienta)
-            )
-
-        # Actualizar el stock según el estado de la herramienta
-        if estado == "Reservada" or estado == "En Reparación":
-            if herramienta_sucursal.cantidad_disponible > 0:
-                herramienta_sucursal.cantidad_disponible -= 1
-            else:
-                flash("No hay stock disponible para esta herramienta.", "danger")
-                return redirect(
-                    url_for("main_bp.transacciones", id_herramienta=id_herramienta)
-                )
-        elif estado == "Disponible":
-            herramienta_sucursal.cantidad_disponible += 1
-
-        # Guardar el estado de la herramienta en la sucursal específica
-        herramienta.estado = estado
+    # Crear un registro inicial si no existe
+    if not herramienta_sucursal_actual:
+        herramienta_sucursal_actual = HerramientaSucursal(
+            herramienta_id=id_herramienta,
+            sucursal_id=sucursal_actual_id,
+            cantidad_disponible=0
+        )
+        db.session.add(herramienta_sucursal_actual)
         db.session.commit()
 
-        # Crear una nueva transacción
+    # Obtener stock en otras sucursales
+    stock_sucursales = HerramientaSucursal.query.filter(
+        HerramientaSucursal.herramienta_id == id_herramienta,
+        HerramientaSucursal.sucursal_id != sucursal_actual_id
+    ).join(Sucursal).all()
+
+    if request.method == "POST":
+        estado = request.form.get("estado")
+        cantidad = int(request.form.get("cantidad", 0))
+
+        # Validación de cantidad ingresada
+        if cantidad <= 0:
+            return jsonify({"error": "La cantidad debe ser mayor a 0."}), 400
+
+        if estado == EstadoHerramientaEnum.Disponible.value:
+            # Validar que no se exceda el stock total registrado
+            if herramienta_sucursal_actual.cantidad_disponible + cantidad > herramienta.stock_total:
+                return jsonify({"error": f"No puedes exceder el stock total permitido: {herramienta.stock_total}"}), 400
+            herramienta_sucursal_actual.cantidad_disponible += cantidad
+
+        elif estado in [EstadoHerramientaEnum.EN_REPARACION.value, EstadoHerramientaEnum.RESERVADA.value]:
+            if herramienta_sucursal_actual.cantidad_disponible >= cantidad:
+                herramienta_sucursal_actual.cantidad_disponible -= cantidad
+            else:
+                return jsonify({"error": "No hay suficiente stock disponible para esta acción."}), 400
+
         nueva_transaccion = Transaccion(
-            id_herramienta=herramienta.id_herramienta,
-            cantidad=1,
-            sucursal_origen=sucursal_origen,
-            estado=estado,
+            id_herramienta=id_herramienta,
+            fecha=db.func.now(),
+            cantidad=cantidad,
+            sucursal_origen=sucursal_actual_id,
+            estado=estado
         )
         db.session.add(nueva_transaccion)
         db.session.commit()
 
-        flash("Transacción registrada con éxito", "success")
-        return redirect(url_for("main_bp.transacciones", id_herramienta=id_herramienta))
+        # Respuesta exitosa con stock actualizado
+        return jsonify({
+            "message": "Transacción registrada con éxito.",
+            "stock_local": herramienta_sucursal_actual.cantidad_disponible,
+            "stock_sucursales": [
+                {
+                    "sucursal": {"id": stock.sucursal.id_sucursal, "nombre_sucursal": stock.sucursal.nombre_sucursal},
+                    "cantidad_disponible": stock.cantidad_disponible
+                } for stock in stock_sucursales
+            ]
+        }), 200
 
-    # Renderizar la página de transacciones, pasando la herramienta y las sucursales con stock
     return render_template(
         "transacciones.html",
         herramienta=herramienta,
+        sucursal_actual=sucursal_actual,
+        stock_local=herramienta_sucursal_actual.cantidad_disponible,
         stock_sucursales=stock_sucursales,
-        EstadoHerramientaEnum=EstadoHerramientaEnum,
+        estados=EstadoHerramientaEnum
     )
 
 

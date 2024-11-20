@@ -8,8 +8,8 @@ from sqlalchemy import Enum  # SQLAlchemy Enum para la base de datos
 # Enumeración para los estados de la herramienta
 class EstadoHerramientaEnum(enum.Enum):
     Disponible = "Disponible"
-    RESERVADA = "Reservada"
-    EN_REPARACION = "En reparación"
+    RESERVADA = "RESERVADA"
+    EN_REPARACION = "EN_REPARACION"
 
 
 # Enumeración para los roles de usuario

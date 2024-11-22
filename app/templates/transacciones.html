@@ -1,133 +1,40 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 
 {% block title %}Transacciones{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h2 class="my-4 text-center">Transacciones para {{ herramienta.nombre }}</h2>
+<h2>Transacciones para: {{ herramienta.nombre }}</h2>
 
-    <!-- Contenedor para mensajes de éxito o error -->
-    <div id="message-container" class="mb-4"></div>
-
-    <div class="row">
-        <!-- Columna Izquierda: Información local y transacción -->
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title text-center">Stock local</h5>
-                    <div class="text-center mb-4">
-                        <span class="badge bg-primary fs-5">{{ sucursal_actual.nombre_sucursal }}</span>
-                        <p class="fs-4" id="stock-local">{{ stock_local }}</p>
-                    </div>
-                    <form method="POST" id="transaccion-form">
-                        <h6>Registrar Transacción</h6>
-                        <div class="mb-3">
-                            <label for="estado" class="form-label">Estado</label>
-                            <select name="estado" id="estado" class="form-select" required>
-                                {% for estado in estados %}
-                                <option value="{{ estado.value }}">{{ estado.value }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="cantidad" class="form-label">Cantidad</label>
-                            <input type="number" name="cantidad" id="cantidad" class="form-control" min="1" required>
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100">Guardar</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Columna Derecha: Información de otras sucursales -->
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title text-center">Stock en otras sucursales</h5>
-                    <ul class="list-group" id="stock-otras-sucursales">
-                        {% for stock in stock_sucursales %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            {{ stock.sucursal.nombre_sucursal }}
-                            <span class="badge bg-secondary">{{ stock.cantidad_disponible }}</span>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+<div>
+    <form method="POST" action="{{ url_for('main_bp.transacciones', herramienta_id=herramienta.id_herramienta) }}">
+        <label for="estado">Seleccionar estado:</label>
+        <select class="form-select" id="estado" name="estado">
+            <option value="Disponible" {% if estado_actual == "Disponible" %}selected{% endif %}>Disponible</option>
+            <option value="Reservada" {% if estado_actual == "Reservada" %}selected{% endif %}>Reservada</option>
+            <option value="En Mantenimiento" {% if estado_actual == "En Mantenimiento" %}selected{% endif %}>En Mantenimiento</option>
+        </select>
+        <button type="submit" class="btn btn-primary mt-3">Registrar transacción</button>
+    </form>
 </div>
 
-<!-- Scripts para actualizar el stock dinámicamente -->
-<script>
-    document.getElementById("transaccion-form").addEventListener("submit", async function (e) {
-        e.preventDefault(); // Evita que la página se recargue
+<h3>Stock total:</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Sucursal</th>
+            <th>Stock Disponible</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for stock in stocks %}
+        <tr>
+            <td>{{ stock.nombre_sucursal }}</td>
+            <td>{{ stock.cantidad_disponible }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-        const form = e.target;
-        const formData = new FormData(form);
 
-        try {
-            const response = await fetch(form.action, {
-                method: "POST",
-                body: formData,
-            });
 
-            const messageContainer = document.getElementById("message-container");
-            messageContainer.innerHTML = ""; // Limpia mensajes previos
-
-            if (response.ok) {
-                const data = await response.json();
-
-                // Actualiza el stock local
-                document.getElementById("stock-local").textContent = data.stock_local;
-
-                // Actualiza el stock en otras sucursales
-                const stockOtrasSucursales = document.getElementById("stock-otras-sucursales");
-                stockOtrasSucursales.innerHTML = "";
-                data.stock_sucursales.forEach((stock) => {
-                    const listItem = document.createElement("li");
-                    listItem.className = "list-group-item d-flex justify-content-between align-items-center";
-                    listItem.innerHTML = `
-                        ${stock.sucursal.nombre_sucursal}
-                        <span class="badge bg-secondary">${stock.cantidad_disponible}</span>
-                    `;
-                    stockOtrasSucursales.appendChild(listItem);
-                });
-
-                // Mensaje de éxito
-                const successMessage = document.createElement("div");
-                successMessage.className = "alert alert-success alert-dismissible fade show";
-                successMessage.role = "alert";
-                successMessage.innerHTML = `
-                    Transacción registrada con éxito.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                `;
-                messageContainer.appendChild(successMessage);
-            } else {
-                const error = await response.json();
-                // Mensaje de error
-                const errorMessage = document.createElement("div");
-                errorMessage.className = "alert alert-danger alert-dismissible fade show";
-                errorMessage.role = "alert";
-                errorMessage.innerHTML = `
-                    Error: ${error.message}.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                `;
-                messageContainer.appendChild(errorMessage);
-            }
-        } catch (err) {
-            console.error("Error al realizar la transacción:", err);
-
-            // Mensaje de error
-            const errorMessage = document.createElement("div");
-            errorMessage.className = "alert alert-danger alert-dismissible fade show";
-            errorMessage.role = "alert";
-            errorMessage.innerHTML = `
-                Ocurrió un error. Por favor, inténtalo nuevamente.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            `;
-            document.getElementById("message-container").appendChild(errorMessage);
-        }
-    });
-</script>
 {% endblock %}

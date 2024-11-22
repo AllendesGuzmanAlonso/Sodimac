@@ -8,8 +8,8 @@ from sqlalchemy import Enum  # SQLAlchemy Enum para la base de datos
 # Enumeración para los estados de la herramienta
 class EstadoHerramientaEnum(enum.Enum):
     Disponible = "Disponible"
-    RESERVADA = "RESERVADA"
-    EN_REPARACION = "EN_REPARACION"
+    RESERVADA = "Reservada"
+    EN_REPARACION = "En reparación"
 
 
 # Enumeración para los roles de usuario
@@ -26,44 +26,26 @@ class EstadoArriendoEnum(enum.Enum):
 
 # Modelo Herramienta: representa las herramientas disponibles en el sistema
 class Herramienta(db.Model):
-    __tablename__ = "herramientas"
+    __tablename__ = 'herramientas'
+
     id_herramienta = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
-    marca = db.Column(db.String(50), nullable=False)
-    codigo = db.Column(db.String(50), unique=True, nullable=False)
-    estado = db.Column(
-        Enum(EstadoHerramientaEnum),
-        nullable=False,
-        default=EstadoHerramientaEnum.Disponible,
-    )
-    cantidad_disponible = db.Column(db.Integer, nullable=False)
-
-    # Relación con sucursales a través del modelo intermedio HerramientaSucursal
-    sucursal_asignaciones = db.relationship(
-        "HerramientaSucursal", back_populates="herramienta"
-    )
-
-    # Relación directa con la sucursal (campo sucursal_id para compatibilidad con sistemas existentes)
-    sucursal_id = db.Column(
-        db.Integer, db.ForeignKey("sucursales.id_sucursal"), nullable=True
-    )
-    sucursal = db.relationship("Sucursal", back_populates="herramientas")
+    codigo = db.Column(db.String(4), unique=True, nullable=False)
+    marca = db.Column(db.String(100), nullable=False)
+    sucursales = db.relationship('HerramientaSucursal', back_populates='herramienta')
 
 
 # Modelo Sucursal: representa las sucursales donde se almacenan herramientas
 class Sucursal(db.Model):
-    __tablename__ = "sucursales"
+    __tablename__ = 'sucursales'
+
     id_sucursal = db.Column(db.Integer, primary_key=True)
     nombre_sucursal = db.Column(db.String(100), nullable=False)
     ubicacion = db.Column(db.String(200), nullable=False)
 
-    # Relación con herramientas a través del modelo intermedio HerramientaSucursal
-    herramienta_asignaciones = db.relationship(
-        "HerramientaSucursal", back_populates="sucursal"
-    )
+    # Relación con herramienta_sucursal (intermediaria)
+    herramientas = db.relationship('HerramientaSucursal', back_populates='sucursal')
 
-    # Relación directa con herramientas (para herramientas individuales con sucursal fija)
-    herramientas = db.relationship("Herramienta", back_populates="sucursal")
 
 
 # Modelo Usuario: representa los usuarios del sistema
@@ -73,7 +55,7 @@ class Usuario(db.Model):
     nombre = db.Column(db.String(100), nullable=False)
     correo = db.Column(db.String(120), unique=True, nullable=False)
     rol = db.Column(Enum(RolEnum), nullable=False, default=RolEnum.Usuario)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
 
     def set_password(self, password):
         """Genera un hash para la contraseña."""
@@ -127,14 +109,10 @@ class Transaccion(db.Model):
 class HerramientaSucursal(db.Model):
     __tablename__ = "herramienta_sucursal"
     id = db.Column(db.Integer, primary_key=True)
-    herramienta_id = db.Column(
-        db.Integer, db.ForeignKey("herramientas.id_herramienta"), nullable=False
-    )
-    sucursal_id = db.Column(
-        db.Integer, db.ForeignKey("sucursales.id_sucursal"), nullable=False
-    )
-    cantidad_disponible = db.Column(db.Integer, nullable=False)
+    herramienta_id = db.Column(db.Integer, db.ForeignKey("herramientas.id_herramienta"))
+    sucursal_id = db.Column(db.Integer, db.ForeignKey("sucursales.id_sucursal"))
+    cantidad_disponible = db.Column(db.Integer, default=0)
 
-    # Relaciones con herramientas y sucursales
-    herramienta = db.relationship("Herramienta", back_populates="sucursal_asignaciones")
-    sucursal = db.relationship("Sucursal", back_populates="herramienta_asignaciones")
+    herramienta = db.relationship("Herramienta", back_populates="sucursales")
+    sucursal = db.relationship("Sucursal", back_populates="herramientas")
+

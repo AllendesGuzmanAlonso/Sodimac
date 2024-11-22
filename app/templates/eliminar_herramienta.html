@@ -4,34 +4,36 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Eliminar Herramientas</h2>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Marca</th>
-                    <th>Código</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for herramienta in herramientas %}
-                <tr>
-                    <td>{{ herramienta.nombre }}</td>
-                    <td>{{ herramienta.marca }}</td>
-                    <td>{{ herramienta.codigo }}</td>
-                    <td>
-                        <form method="POST"
-                            action="{{ url_for('main_bp.eliminar_herramienta', id_herramienta=herramienta.id_herramienta) }}"
-                            onsubmit="return confirm('¿Estás seguro de eliminar esta herramienta?');">
-                            <button type="submit" class="btn btn-danger">Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <h2 class="text-center">Eliminar Herramientas</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Marca</th>
+                <th>Código</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for herramienta in herramientas %}
+            <tr>
+                <td>{{ herramienta.nombre }}</td>
+                <td>{{ herramienta.marca }}</td>
+                <td>{{ herramienta.codigo }}</td>
+                <td>
+                    <form
+                        method="POST"
+                        action="{{ url_for('main_bp.eliminar_herramienta') }}"
+                    >
+                        <input type="hidden" name="id_herramienta" value="{{ herramienta.id_herramienta }}" />
+                        <button class="btn btn-danger" type="submit">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    
 </div>
 {% endblock %}

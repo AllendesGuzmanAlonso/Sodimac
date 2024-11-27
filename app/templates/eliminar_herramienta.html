@@ -5,8 +5,16 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center">Eliminar Herramientas</h2>
-    <table class="table">
-        <thead>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="alert alert-dismissible fade show {{ messages[0][0] }}" role="alert">
+        {{ messages[0][1] }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+    {% endwith %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
             <tr>
                 <th>Nombre</th>
                 <th>Marca</th>
@@ -15,25 +23,26 @@
             </tr>
         </thead>
         <tbody>
-            {% for herramienta in herramientas %}
+            {% for herramienta_sucursal in herramientas %}
             <tr>
-                <td>{{ herramienta.nombre }}</td>
-                <td>{{ herramienta.marca }}</td>
-                <td>{{ herramienta.codigo }}</td>
+                <td>{{ herramienta_sucursal.herramienta.nombre }}</td>
+                <td>{{ herramienta_sucursal.herramienta.marca }}</td>
+                <td>{{ herramienta_sucursal.codigo }}</td>
                 <td>
-                    <form
-                        method="POST"
-                        action="{{ url_for('main_bp.eliminar_herramienta') }}"
-                    >
-                        <input type="hidden" name="id_herramienta" value="{{ herramienta.id_herramienta }}" />
-                        <button class="btn btn-danger" type="submit">Eliminar</button>
+                    <form method="POST" action="{{ url_for('main_bp.eliminar_herramienta') }}">
+                        <input type="hidden" name="herramienta_sucursal_id" value="{{ herramienta_sucursal.id }}">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash-alt"></i> Eliminar
+                        </button>
                     </form>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    
-    
+    {% if herramientas|length == 0 %}
+    <p class="text-center">No hay herramientas disponibles para eliminar en esta sucursal.</p>
+    {% endif %}
 </div>
 {% endblock %}
+

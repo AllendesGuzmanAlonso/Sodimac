@@ -5,20 +5,31 @@
 {% block content %}
 <div class="container mt-5">
     <h2 class="text-center">Lista de Sucursales</h2>
-    <table class="table table-striped mt-4">
+    <table class="table">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Nombre</th>
                 <th>Ubicación</th>
+                <th>Mapa</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for sucursal in sucursales %}
             <tr>
-                <td>{{ sucursal.id_sucursal }}</td>
                 <td>{{ sucursal.nombre_sucursal }}</td>
                 <td>{{ sucursal.ubicacion }}</td>
+                <td>
+                    <a 
+                    href="https://www.google.com/maps/search/?api=1&query={{ sucursal.ubicacion|urlencode }}" 
+                    target="_blank"
+                    class="btn btn-primary">
+                    Ver en Google Maps
+                 </a>
+                </td>
+                <td>
+                    <!-- Botón para modificar la ubicación -->
+                </td>
             </tr>
             {% endfor %}
         </tbody>

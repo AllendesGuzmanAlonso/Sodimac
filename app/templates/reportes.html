@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Reporte de Herramientas y Sucursales</h2>
+    <h2 class="text-center mb-4">Reporte de Transacciones de Herramientas</h2>
 
     <!-- Botones para descargar el reporte -->
     <div class="mb-3 text-end">
@@ -12,22 +12,28 @@
         <a href="{{ url_for('main_bp.descargar_excel') }}" class="btn btn-outline-success">Descargar Excel</a>
     </div>
 
-    <table class="table table-bordered table-hover">
-        <thead class="table-light">
+    <table class="table">
+        <thead>
             <tr>
                 <th>Nombre de la Herramienta</th>
-                <th>Sucursal</th>
-                <th>Stock Actual</th>
-                <th>Total de Transacciones</th>
+                <th>Marca</th>
+                <th>Código</th>
+                <th>Sucursal</th> <!-- Actualizado -->
+                <th>Estado Anterior</th>
+                <th>Estado Nuevo</th>
+                <th>Fecha de la Transacción</th>
             </tr>
         </thead>
         <tbody>
-            {% for herramienta in herramientas %}
+            {% for transaccion in transacciones %}
             <tr>
-                <td>{{ herramienta.nombre }}</td>
-                <td>{{ herramienta.nombre_sucursal }}</td>
-                <td>{{ herramienta.cantidad_disponible }}</td>
-                <td>{{ herramienta.total_transacciones }}</td>
+                <td>{{ transaccion[0] }}</td>
+                <td>{{ transaccion[1] }}</td>
+                <td>{{ transaccion[2] }}</td>
+                <td>{{ transaccion[3] }}</td> <!-- Mostrar nombre de la sucursal -->
+                <td>{{ transaccion[4] }}</td>
+                <td>{{ transaccion[5] }}</td>
+                <td>{{ transaccion[6].strftime('%Y-%m-%d') }}</td>
             </tr>
             {% endfor %}
         </tbody>

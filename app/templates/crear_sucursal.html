@@ -8,11 +8,25 @@
     <form method="POST" action="{{ url_for('main_bp.crear_sucursal') }}">
         <div class="mb-3">
             <label for="nombre_sucursal" class="form-label">Nombre de la Sucursal</label>
-            <input type="text" class="form-control" id="nombre_sucursal" name="nombre_sucursal" required>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="nombre" 
+                name="nombre" 
+                placeholder="Nombre de la sucursal" 
+                maxlength="50" 
+                required>
         </div>
         <div class="mb-3">
             <label for="ubicacion" class="form-label">Ubicación de la Sucursal</label>
-            <input type="text" class="form-control" id="ubicacion" name="ubicacion" required>
+            <input 
+                type="text" 
+                class="form-control" 
+                id="ubicacion" 
+                name="ubicacion" 
+                placeholder="Ubicación de la sucursal" 
+                maxlength="100" 
+                required>
         </div>
         <button type="submit" class="btn btn-primary w-100">Crear Sucursal</button>
     </form>

@@ -1,113 +1,40 @@
 {% extends 'layout.html' %}
 
-{% block title %} Transacciones {% endblock %}
+{% block title %}Transacciones{% endblock %}
 
 {% block content %}
-<style>
-    /* Estilos personalizados */
-    .stock-info,
-    .transaction-info {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
-        border-radius: 5px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
+<h2>Transacciones para: {{ herramienta.nombre }} {{ herramienta.marca }} {{ herramienta_sucursal.codigo }}</h2>
 
-    .stock-info h5,
-    .transaction-info h5 {
-        font-size: 1.25rem;
-        color: #333;
-        margin-bottom: 15px;
-    }
+<form method="POST" action="{{ url_for('main_bp.transaccion', herramienta_codigo=herramienta_sucursal.codigo) }}">
+    <label for="estado">Estado</label>
+    <select name="estado" class="form-control">
+        {% for estado in estados_disponibles %}
+            <option value="{{ estado }}">{{ estado }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Actualizar</button>
+</form>
 
-    .stock-display {
-        font-size: 1.1rem;
-        font-weight: bold;
-        color: #007bff;
-    }
 
-    .save-btn {
-        background-color: #28a745;
-        color: white;
-    }
+<h3>Stock total por sucursal:</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Sucursal</th>
+            <th>Stock Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sucursal in stock_total_por_sucursal %}
+        <tr>
+            <td>{{ sucursal.nombre_sucursal }}</td>
+            <td>{{ sucursal.stock_total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-    .save-btn:hover {
-        background-color: #218838;
-        color: white;
-    }
 
-    .form-label {
-        font-size: 1rem;
-        font-weight: 500;
-        color: #555;
-    }
 
-    .form-select,
-    .form-control {
-        font-size: 1rem;
-    }
-</style>
 
-<!-- Contenedor principal -->
-<div class="container-fluid">
-    <!-- Contenido principal -->
-    <div class="col-md-9 content">
-        <!-- Información de la herramienta seleccionada -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="stock-info">
-                    <h5>{{ herramienta.nombre }}</h5>
-                    <div class="stock-display">
-                        Stock local: {{ herramienta.cantidad_disponible }}
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="transaction-info">
-                    <h5>Otras sucursales</h5>
-                    {% for sucursal in stock_sucursales %}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input type="text" class="form-control" value="{{ sucursal.sucursal.nombre_sucursal }}"
-                                readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <input type="text" class="form-control" value="{{ sucursal.cantidad_disponible }}" readonly>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Sección de transacción -->
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <form method="POST">
-                    <div class="transaction-info">
-                        <h5>Transacción</h5>
-                        <div class="mb-3">
-                            <label for="codigo" class="form-label">Código</label>
-                            <select class="form-select" id="codigo" name="codigo">
-                                <option selected>Seleccionar Código</option>
-                                <option value="{{ herramienta.codigo }}">{{ herramienta.codigo }}</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="estado" class="form-label">Estado</label>
-                            <select class="form-select" id="estado" name="estado">
-                                <option selected>Seleccionar Estado</option>
-                                {% for estado in EstadoHerramientaEnum %}
-                                <option value="{{ estado.value }}">{{ estado.value }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <button type="submit" class="btn save-btn">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
